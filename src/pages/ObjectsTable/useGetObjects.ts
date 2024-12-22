@@ -1,17 +1,20 @@
-import { useEffect, useState } from "react";
-import { TGetObjectsResponse, IObject } from "./types";
+import { useEffect } from "react";
+import { TGetObjectsResponse } from "./types";
 import { IO_OBJECTS, socket } from "../../general/constants";
+import { useObjectsHook } from "../../general/storeHooks/useObjectsHook";
 
 export const useGetObjects = () => {
-    const [data, setData] = useState<IObject[]>([]);
+
+    const { setObjectsTable } = useObjectsHook(state => state);
 
     useEffect(() => {
-        socket.emit(IO_OBJECTS, (resp: TGetObjectsResponse) => {
-            if (resp.status === 200) {
-                setData(resp.data.objects);
-            }
-        });
-    }, []);
+        if (setObjectsTable) {
+            socket.emit(IO_OBJECTS, (resp: TGetObjectsResponse) => {
+                if (resp.status === 200) {
+                    setObjectsTable(resp.data.objects)
+                }
+            });
+        }
 
-    return { data };
+    }, [setObjectsTable]);
 }

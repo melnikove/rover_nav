@@ -2,8 +2,11 @@ import { useEffect } from "react";
 import { TGetObjectResponse, IUseGetObjectProps } from "./type";
 import { IO_OBJECT, socket } from "../../general/constants";
 import { IErrorResponse } from "../../general/types";
+import { useObjectHook } from "../../general/storeHooks/useObjectHook";
 
-export const useGetObject = ({ objectId = '', setObject, setError }: IUseGetObjectProps) => {
+export const useGetObject = ({ objectId = '', setError }: IUseGetObjectProps) => {
+
+    const { setObject } = useObjectHook(state => state);
 
     useEffect(() => {
         const parsedObjectId = parseInt(objectId);

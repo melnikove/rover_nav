@@ -7,20 +7,21 @@ import { useGetVehicles } from "./useGetVehicles";
 import { MapContainer } from "./components/MapContainer/MapContainer";
 import { EMapMode, IExecVehicleRoutePoint } from "./components/MapContainer/type";
 import { IVehicle } from "./type";
-import { IObject } from "../ObjectsTable/types";
 import { IO_ONLINE, IO_START_NAVIGATE, socket } from "../../general/constants";
+import { useObjectHook } from "../../general/storeHooks/useObjectHook";
+import { useVehiclesHook } from "../../general/storeHooks/useVehiclesHook";
+import { useSetNextNavPoint } from "../../general/storeHooks/useSetNextNavPoint";
 
 export const ObjectPage = () => {
-
-
     const [mapMode, setMapMode] = useState<EMapMode>(EMapMode.PlanVehicleRoute);
 
-    const [object, setObject] = useState<IObject | null>(null);
-    const [vehicles, setVehicles] = useState<IVehicle[]>([]);
+    const { object } = useObjectHook(state => state);
+
+    const { vehicles } = useVehiclesHook(set => set);
 
     const [error, setError] = useState('');
 
-    const [nextNavRoutePoint, setNextNavRoutePoint] = useState<IExecVehicleRoutePoint | null>(null);
+    const { nextNavPoint, setNextNavPoint } = useSetNextNavPoint(set => set);
 
     const vehicleRef = useRef<IVehicle>();
 
@@ -33,15 +34,16 @@ export const ObjectPage = () => {
 
     const { objectId } = useParams();
 
-    useGetObject({ objectId, setObject, setError });
+    useGetObject({ objectId, setError });
 
-    useGetVehicles({ setVehicles });
+    useGetVehicles();
 
     useEffect(() => {
+        setNextNavPoint(null);
         return () => {
             socket.off(IO_ONLINE);
         }
-    }, []);
+    }, [setNextNavPoint]);
 
     const handleSaveRoute = useCallback((points: LatLng[]) => {
         if (vehicleRef.current) {
@@ -53,13 +55,13 @@ export const ObjectPage = () => {
                     socket.on(
                         IO_ONLINE,
                         (data: IExecVehicleRoutePoint) => {
-                            setNextNavRoutePoint(data);
+                            setNextNavPoint(data);
                         },
                     );
                 },
             );
         }
-    }, [vehicleRef, setNextNavRoutePoint]);
+    }, [vehicleRef, setNextNavPoint]);
 
     if (error) return <h1 style={{ width: '100%' }}>{error}</h1>
 
@@ -67,6 +69,6 @@ export const ObjectPage = () => {
         mode={mapMode}
         object={object}
         handleSaveRoute={handleSaveRoute}
-        nextNavRoutePoint={nextNavRoutePoint || undefined}
+        nextNavRoutePoint={nextNavPoint || undefined}
     />;
 };

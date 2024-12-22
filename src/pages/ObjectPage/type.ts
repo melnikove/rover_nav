@@ -12,12 +12,8 @@ export interface IVehicle {
 
 export type TGetVehiclesResponse = ISuccessResponse<{ vehicles: IVehicle[] }>;
 
-export interface IUseGetVehiclesProps {
-    setVehicles: Dispatch<SetStateAction<IVehicle[]>>
-}
 
 export interface IUseGetObjectProps {
     objectId?: string;
-    setObject: Dispatch<SetStateAction<IObject | null>>;
     setError: Dispatch<SetStateAction<string>>;
 }

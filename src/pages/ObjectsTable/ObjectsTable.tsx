@@ -4,9 +4,12 @@ import { useGetObjects } from "./useGetObjects";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { useNavigate } from "react-router";
 import { ERoutes, routes } from "../../general/constants";
+import { useObjectsHook } from "../../general/storeHooks/useObjectsHook";
 
 export const ObjectsTable: FC = () => {
-    const { data } = useGetObjects();
+    useGetObjects();
+
+    const { objectsTable } = useObjectsHook(state => state);
 
     const navigate = useNavigate();
 
@@ -25,10 +28,13 @@ export const ObjectsTable: FC = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((object: IObject) => (
+                    {objectsTable.map((object: IObject) => (
                         <TableRow
                             key={object.id}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            sx={{
+                                '&:last-child td, &:last-child th': { border: 0 },
+                                cursor: 'pointer',
+                            }}
                             onClick={getBindedHandleClick(object.id)}
                         >
                             <TableCell component="th" scope="row">
